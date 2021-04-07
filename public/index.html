@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telurku</title>
+    <link rel="shortcut icon" href="icon.svg" type="image/x-icon">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <nav>
+        <div class="title">
+            <img src="icon.svg" alt="">
+            <h1>Telurku</h1>
+        </div>
+        <div class="logout">
+            <button class="btnKeluar">Keluar</button>
+        </div>
+    </nav>
+
+    <div class="wrapper">
+        <div class="jumbotron">
+            <h2><span class="valHari"></span> hari lagi telur kamu akan menetas</h2>
+            <p>Jenis telur : <span class="valTelur"></span></p>
+        </div>
+        <div class="child">
+            <div class="card temperature">
+                <img src="image/thermometer-high.svg" alt="">
+                <h3>Temperature</h3>
+                <h4><span class="valSuhu">0</span> °C</h4>
+            </div>
+            <div class="card kelembaban">
+                <img src="image/droplet.svg" alt="">
+                <h3>Kelembaban</h3>
+                <h4><span class="valKelembaban">0</span> %</h4>
+            </div>
+            <div class="card inkubasi">
+                <img src="image/calendar-event.svg" alt="">
+                <h3>Inkubasi</h3>
+                <h4><span class="valInkubasi">0</span> Hari</h4>
+            </div>
+            <div class="card jadwal">
+                <img src="image/calendar-check.svg" alt="">
+                <h3>Jadwal Air</h3>
+                <h4><span class="valJadwal">3</span> Hari lagi</h4>
+            </div>
+        </div>
+    </div>  
+
+    <div class="login">
+        <div class="sectionLogin">
+            <div class="title">
+                <img src="icon.svg" alt="">
+                <h1>Telurku</h1>
+            </div>
+            <div class="input">
+                <label for="inputId">ID</label>
+                <input id="inputID" type="password">
+            </div>
+            <button class="btnMasuk">Masuk</button>
+        </div>
+    </div>
+    
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-analytics.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.3.2/firebase-database.js"></script>
+
+    <script>
+    // Your web app's Firebase configuration
+    // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+    var firebaseConfig = {
+        apiKey: "********",
+        authDomain: "********.firebaseapp.com",
+        databaseURL: "https://*******.firebaseio.com",
+        projectId: "*******",
+        storageBucket: "*******.appspot.com",
+        messagingSenderId: "********",
+        appId: "*********:web:72a80a0a0b11281c0846ca",
+        measurementId: "G-92WMFGVBX3"
+    };
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    firebase.analytics();
+
+    $(".btnMasuk").click(function() {
+        // console.log($("#inputID").val());
+        if ($("#inputID").val() == "") {
+            alert('Silahkan isi input ID')
+        } else if (($("#inputID").val()).toLowerCase() == "3ggcubat0r") {
+            $("#inputID").val("")
+            $(".login").hide()
+            $("nav").addClass("flex")
+            $(".wrapper").addClass("flex")
+        } else {
+            alert("ID yang dimasukan salah");
+            $("#inputID").val("")
+        }
+    })
+
+    $(".btnKeluar").click(function() {
+        $(".login").show()
+        $("nav").removeClass("flex")
+        $(".wrapper").removeClass("flex")
+    })
+
+    let database = firebase.database();
+    let egg = firebase.database().ref("EggData");
+    let iot = firebase.database().ref("FirebaseIOT");
+    let starCountRef = firebase.database().ref("SettingData");
+
+    let hari;
+    egg.on('value', (snapshot) => {
+        const data = snapshot.val();
+        hari = data.day;
+        $(".valHari").html(data.day);
+    })
+
+    iot.on('value', (snapshot) => {
+        const data = snapshot.val();
+
+        let date = new Date(data.mightyDay);
+            date.setDate(date.getDate() + hari);
+        let dt1 = new Date();
+            dt1 = new Date(dt1.toLocaleDateString())
+        let dt2 = new Date(date);
+
+        // sisa inkubasi
+        let sisaInkubasi = Math.floor((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate()) ) /(1000 * 60 * 60 * 24))
+        
+        $(".valSuhu").html(data.temperature)
+        $(".valKelembaban").html(data.humidity)
+        $(".valTelur").html(data.eggName)
+        $(".valInkubasi").html(hari - sisaInkubasi)
+    });
+
+
+    </script>
+
+    
+  </body>
+</html>
